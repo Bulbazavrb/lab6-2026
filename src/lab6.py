@@ -1,37 +1,67 @@
 """
-Основна програма для Лабораторної роботи № 6.
-
-Цей скрипт повинен імпортувати та використовувати створений вами пакет,
-щонайменше один модуль зі стандартної бібліотеки Python,
-та щонайменше один сторонній пакет.
+Головний модуль лабораторної роботи № 6.
+Демонстрація використання власного пакета coin_flip,
+стандартних бібліотек та сторонніх пакетів (colorama, tabulate).
 """
 
-# Приклад імпорту зі стандартної бібліотеки
+import sys
+import os
 import math
+from colorama import Fore, Style, init
+from tabulate import tabulate
 
-# Приклад імпорту стороннього пакета
-import requests
+# Додаємо шлях до директорії src для коректного імпорту
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
-# TODO: Імпортуйте функції зі створеного вами пакета.
-# from назва_вашого_пакета.назва_модуля import ваша_функція
+from coin_flip import flip_coin, flip_coins
+
+# Ініціалізація colorama для кольорового консольного виводу
+init(autoreset=True)
 
 
 def main():
-    """Основна функція для демонстрації використання модулів та пакетів."""
-    # Приклад використання модуля стандартної бібліотеки
-    print(f"Квадратний корінь з 16: {math.sqrt(16)}")
+    print(Fore.CYAN + Style.BRIGHT + "=" * 60)
+    print(Fore.CYAN + Style.BRIGHT + "  ЛАБОРАТОРНА РОБОТА № 6: МОДУЛІ ТА ПАКЕТИ (Варіант 12)")
+    print(Fore.CYAN + Style.BRIGHT + "=" * 60)
 
-    # Приклад використання стороннього пакета
-    try:
-        response = requests.get("https://api.github.com", timeout=10)
-        response.raise_for_status()  # Викликати виняток для невдалих статус-кодів
-        print("Успішно підключено до GitHub API.")
-    except requests.exceptions.RequestException as e:
-        print(f"Не вдалося підключитися до GitHub API: {e}")
+    # 1. Демонстрація single_flip
+    print(Fore.YELLOW + "\n--- 1. Подиноке підкидання монетки (single_flip) ---")
+    single_res = flip_coin()
+    print(f"Результат кидка: {Fore.GREEN + Style.BRIGHT}{single_res.upper()}")
 
-    # TODO: Додайте виклики ваших власних функцій з вашого пакета.
-    # print(f"Результат моєї функції: {ваша_функція(якісь_вхідні_дані)}")
+    # 2. Демонстрація multiple_flips
+    n_flips = 100
+    print(Fore.YELLOW + f"\n--- 2. Серія з {n_flips} підкидань (multiple_flips) ---")
+    stats = flip_coins(n_flips)
+
+    # Використання стандартного модуля math для обчислення відсотка
+    heads_pct = round((stats['орел'] / n_flips) * 100, 2)
+    tails_pct = round((stats['решка'] / n_flips) * 100, 2)
+
+    # Використання стороннього пакета tabulate для гарного виведення
+    table_data = [
+        ["Орел (Heads)", stats['орел'], f"{heads_pct}%"],
+        ["Решка (Tails)", stats['решка'], f"{tails_pct}%"],
+        ["Всього (Total)", n_flips, "100.0%"]
+    ]
+    headers = ["Сторона монети", "Кількість", "Частка"]
+
+    print(tabulate(table_data, headers=headers, tablefmt="fancy_grid"))
+
+    # 3. Використання модуля стандартної бібліотеки math
+    print(Fore.YELLOW + "\n--- 3. Статистичний аналіз за допомогою модуля `math` ---")
+    diff = abs(stats['орел'] - stats['решка'])
+    sqrt_diff = round(math.sqrt(diff), 4)
+    print(f"Абсолютна різниця між орлами та решками: {diff}")
+    print(f"Квадратний корінь різниці (math.sqrt): {sqrt_diff}")
+
+    print(Fore.CYAN + "\n[+] Демонстраційне виконання завершено успішно.")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(Fore.RED + f"\n[!] Помилка виконання: {e}")
+    finally:
+        input("\nНатисніть Enter для виходу з програми...")
